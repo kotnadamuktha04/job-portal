@@ -11,3 +11,18 @@ Frontend - HTML,CSS AND React JS
 Backend - NodeJS and ExpressJS
 Database - MongoDB
 VS Code
+
+Quick Start:
+
+Clone the repo:
+
+bash
+
+git clone https://github.com/kotnadamuktha04/job-portal.git  
+
+Follow setup steps in the README.md (install dependencies, run server).
+
+Contribute:
+
+🔹 Open for enhancements (UI, filters, API integrations).
+🔹 Fork → Improve → Submit a Pull Request!
