@@ -55,7 +55,7 @@ const PostJob = () => {
       try {
         await axios.post("/api/jobs", jobPost);
         window.alert("Form Submitted Successfully");
-        navigate("/Jobs");
+        navigate("/jobs");
       } catch (error) {
         console.error("Error posting job:", error);
         window.alert("Error posting job. Please try again.");
