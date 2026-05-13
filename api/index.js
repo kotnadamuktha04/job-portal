@@ -70,4 +70,33 @@ app.post('/api/jobs', async (req, res) => {
   }
 });
 
+/* =======================
+   POST /api/signup
+   Creates a new user bypassing email confirmation.
+======================= */
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const { data, error } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true
+    });
+
+    if (error) {
+      console.error('Supabase signup error:', error);
+      return res.status(500).json({ message: error.message });
+    }
+
+    res.status(201).json({ message: 'User created successfully', user: data.user });
+  } catch (err) {
+    console.error('Unexpected error during signup:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = app;

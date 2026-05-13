@@ -29,9 +29,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-    return data;
+    const response = await fetch('/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || 'Signup failed');
+    
+    // After admin creates the user, we log them in normally
+    return login(email, password);
   };
 
   const logout = async () => {
