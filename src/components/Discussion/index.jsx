@@ -24,12 +24,14 @@ export default function Discussion() {
   const [rating, setRating] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const commentRef = useRef();
+
   const [commentList, setCommentList] = useState(null);
   const [urlList, setUrlList] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (name === "" || commentRef.length === "") {
+
+    if (name === "" || commentRef.current.innerText === "") {
       window.alert("Enter the credentials");
     } else {
       axios({
@@ -50,30 +52,35 @@ export default function Discussion() {
         .then((result) => console.log(result))
         .catch((error) => console.error(error));
 
-      const newComment = commentList.unshift({
+      const newComment = {
         name,
         content: commentRef.current.innerText,
         rating,
         _type: "Comment",
-      });
+      };
+
+      setCommentList([newComment, ...(commentList || [])]);
+
       setName("");
       setImageUrl("");
       commentRef.current.innerText = "";
-      setCommentList(...newComment, ...commentList);
     }
   };
 
   const handleNameChange = (e) => {
     setName(e.target.value);
   };
+
   const handleCommentChange = (e) => {
     const value = e.currentTarget.innerText;
     const newLength = value?.length;
+
     if (newLength === 0) {
       setUrlList([]);
-      setImageUrl();
+      setImageUrl("");
       return;
     }
+
     if (value?.match(imageUrlRegex)) {
       setUrlList(value?.match(imageUrlRegex));
     } else {
@@ -104,29 +111,35 @@ export default function Discussion() {
     })
       .then((result) => console.log(result))
       .catch((error) => console.error(error));
+
     let removeData = [...commentList];
-    removeData.splice(id, 1);
+
+    removeData = removeData.filter((item) => item._id !== id);
+
     setCommentList(removeData);
   };
+
   useEffect(() => {
     sanityClient
       .fetch(
         `*[_type == "Comment"]{
-      _id,
-      name,
-      content,
-      rating,
-      hexCode,
-    } | order(_createdAt desc)`
+          _id,
+          name,
+          content,
+          rating,
+          hexCode,
+        } | order(_createdAt desc)`
       )
       .then((commentList) => {
         setCommentList(commentList);
       })
       .catch(console.error);
   }, []);
+
   return (
     <>
       <Navbar />
+
       <div className="discussion">
         <div className="right">
           <div className="discuss">JOB DISQUS</div>
@@ -134,11 +147,15 @@ export default function Discussion() {
           <form className="comment-form">
             <div className="input-group">
               <div className="comment-name">
-                <div className="line"> {commentList?.length} Comments</div>
+                <div className="line">
+                  {commentList?.length} Comments
+                </div>
+
                 <div className="icon-name">
                   <div className="user-icon">
                     <BiUserCircle />
                   </div>
+
                   <input
                     type="text"
                     placeholder="Your name"
@@ -149,10 +166,13 @@ export default function Discussion() {
                 </div>
               </div>
             </div>
+
             <div className="star-rating">
-              <div className="rating-text">You rated this </div>
+              <div className="rating-text">You rated this</div>
+
               <StarRating onChange={setRating} />
             </div>
+
             <div className="input-group">
               <div
                 type="text"
@@ -163,8 +183,12 @@ export default function Discussion() {
                 onInput={handleCommentChange}
                 ref={commentRef}
               />
+
               <div className="icon-button">
-                <Editor onUrlChange={setUrlList} commentRef={commentRef} />
+                <Editor
+                  onUrlChange={setUrlList}
+                  commentRef={commentRef}
+                />
 
                 <button
                   className="submit"
@@ -174,12 +198,16 @@ export default function Discussion() {
                   Comment
                 </button>
               </div>
+
               <div className="only-image">
                 {imageUrl && (
                   <img
                     src={imageUrl}
+                    alt="discussion"
                     data-testid="image-preview"
-                    className={`${imageUrl ? "image-text-editor" : ""}`}
+                    className={`${
+                      imageUrl ? "image-text-editor" : ""
+                    }`}
                   />
                 )}
               </div>
@@ -187,6 +215,7 @@ export default function Discussion() {
           </form>
         </div>
       </div>
+
       <div className="comment-section">
         <div className="comment-box">
           {commentList &&
@@ -195,7 +224,9 @@ export default function Discussion() {
                 <CommentCard
                   key={comments._id}
                   value={comments}
-                  deleteComment={() => deleteComment(comments._id)}
+                  deleteComment={() =>
+                    deleteComment(comments._id)
+                  }
                 />
               );
             })}

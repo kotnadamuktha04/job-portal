@@ -7,6 +7,7 @@ var imageUrlRegex = /\b(https?:\/\/[^\s]+)/g;
 
 const CommentCard = ({ value, deleteComment }) => {
   const { _id, name, rating, content } = value;
+
   const [isOpen, setIsOpen] = useState(false);
   const [reply, setReply] = useState([]);
   const [toggle, setToggle] = useState(true);
@@ -14,8 +15,9 @@ const CommentCard = ({ value, deleteComment }) => {
 
   function addReply(name, comment) {
     setReply((prevReply) => [...prevReply, { name, comment }]);
-    setIsOpen(!isOpen);
+    setIsOpen(false);
   }
+
   const deleteReply = (index) => {
     let deleteList = [...reply];
     deleteList.splice(index, 1);
@@ -23,6 +25,7 @@ const CommentCard = ({ value, deleteComment }) => {
   };
 
   const imageUrl = value?.content?.match(imageUrlRegex);
+
   return (
     <>
       <div className="comment-boxes">
@@ -32,10 +35,12 @@ const CommentCard = ({ value, deleteComment }) => {
               <div className="name" data-testid="names">
                 {name}
               </div>
+
               <div className="rating" data-testid="ratings">
                 {rating}⭐️
               </div>
             </div>
+
             <div
               className="add-icon"
               data-testid="toggle-btn"
@@ -44,14 +49,17 @@ const CommentCard = ({ value, deleteComment }) => {
               {toggle ? "-" : "+"}
             </div>
           </div>
+
           {toggle && (
             <div>
               <div className="comment" data-testid="comments">
                 {parse(content?.replace(imageUrlRegex, ""))}
               </div>
+
               {imageUrl && (
                 <img
                   src={imageUrl}
+                  alt="comment"
                   data-testid="image-preview"
                   className={`${imageUrl ? "image-text-editor" : ""}`}
                   style={{ width: "150px" }}
@@ -66,6 +74,7 @@ const CommentCard = ({ value, deleteComment }) => {
                 >
                   <div className="reply-btn">Reply</div>
                 </button>
+
                 <button className="reply-count">
                   <div
                     className="view-reply"
@@ -74,8 +83,9 @@ const CommentCard = ({ value, deleteComment }) => {
                     {replyBox ? "Hide Reply" : "Show Reply"} ({reply.length})
                   </div>
                 </button>
+
                 <button
-                  role="delete"
+                  type="button"
                   className="delete"
                   onClick={deleteComment}
                 >
@@ -86,21 +96,31 @@ const CommentCard = ({ value, deleteComment }) => {
           )}
         </div>
       </div>
+
       {isOpen && <Reply onAdd={addReply} />}
-      {reply?.map(({ id, name, comment }) => {
+
+      {reply?.map(({ id, name, comment }, index) => {
         return (
           <>
             {replyBox && (
-              <div className="reply-section">
-                <div className="comment-boxes" key={id}>
+              <div className="reply-section" key={index}>
+                <div className="comment-boxes">
                   <div className="review">
                     <div className="top-area">
-                      <div className="name"> {name}</div>
+                      <div className="name">{name}</div>
                     </div>
+
                     <div>
-                      <div className="comment">{parse(`${comment}`)}</div>
+                      <div className="comment">
+                        {parse(`${comment}`)}
+                      </div>
+
                       <div className="buttons">
-                        <button className="delete" onClick={deleteReply}>
+                        <button
+                          type="button"
+                          className="delete"
+                          onClick={() => deleteReply(index)}
+                        >
                           <AiFillDelete />
                         </button>
                       </div>
