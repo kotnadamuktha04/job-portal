@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Navbar from "../Navbar";
 import { Link } from "react-router-dom";
 import "./index.css";
@@ -15,22 +16,31 @@ const experience = [
 ];
 
 const Jobs = () => {
-  // Load job data from localStorage and ensure it's not empty
-  const JobData = JSON.parse(localStorage.getItem("item")) || [];
+  const [dbJobs, setDbJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
 
-  // Filter out invalid jobs
-  const validJobData = JobData.filter(
-    (job) => job && job.id && job.company && job.position
-  );
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await axios.get("/api/jobs");
+        const fetchedJobs = response.data;
+        setDbJobs(fetchedJobs);
 
-  const validJobEntries = Job.filter(
-    (job) => job && job.id && job.company && job.position
-  );
+        const validJobEntries = Job.filter(
+          (job) => job && job.id && job.company && job.position
+        );
 
-  const [filteredJobs, setFilteredJobs] = useState([
-    ...validJobData,
-    ...validJobEntries,
-  ]);
+        setFilteredJobs([...fetchedJobs, ...validJobEntries]);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+        const validJobEntries = Job.filter(
+          (job) => job && job.id && job.company && job.position
+        );
+        setFilteredJobs([...validJobEntries]);
+      }
+    };
+    fetchJobs();
+  }, []);
 
   // Fixed unused variable warning
   const [, setSearchTerm] = useState("");
@@ -99,7 +109,8 @@ const Jobs = () => {
     setSearchTerm(data);
 
     if (data.length > 2) {
-      const filterData = Job.filter((item) => {
+      const allJobs = [...dbJobs, ...Job];
+      const filterData = allJobs.filter((item) => {
         if (item) {
           return Object.values(item)
             .join("")
@@ -112,7 +123,8 @@ const Jobs = () => {
 
       setFilteredJobs(filterData);
     } else {
-      setFilteredJobs(Job);
+      const allJobs = [...dbJobs, ...Job];
+      setFilteredJobs(allJobs);
     }
   };
 
@@ -122,8 +134,9 @@ const Jobs = () => {
 
     event.preventDefault();
 
+    const allJobs = [...dbJobs, ...Job];
     setFilteredJobs(
-      Job.filter((job) => {
+      allJobs.filter((job) => {
         return job.role === value;
       })
     );
@@ -135,7 +148,8 @@ const Jobs = () => {
 
     checkedState.forEach((item, index) => {
       if (item === true) {
-        const filterS = Job.filter((job) => {
+        const allJobs = [...dbJobs, ...Job];
+        const filterS = allJobs.filter((job) => {
           return (
             job.experience >= experience[index].min &&
             job.experience <= experience[index].max

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../Navbar";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const PostJob = () => {
   const [company, setCompany] = useState("");
@@ -31,7 +32,7 @@ const PostJob = () => {
     });
   };
 
-  const handleSubmitButton = (e) => {
+  const handleSubmitButton = async (e) => {
     e.preventDefault();
     if (company === "") {
       window.alert("Enter name");
@@ -42,7 +43,6 @@ const PostJob = () => {
     } else if (salary === "") window.alert("Enter Salary");
     else {
       const jobPost = {
-        id: new Date().getTime().toString(), // Add a unique ID
         company,
         position,
         salary,
@@ -52,14 +52,14 @@ const PostJob = () => {
         logo,
       };
 
-      let savedItem = [];
-      if (localStorage.getItem("item")) {
-        savedItem = JSON.parse(localStorage.getItem("item"));
+      try {
+        await axios.post("/api/jobs", jobPost);
+        window.alert("Form Submitted Successfully");
+        navigate("/Jobs");
+      } catch (error) {
+        console.error("Error posting job:", error);
+        window.alert("Error posting job. Please try again.");
       }
-
-      localStorage.setItem("item", JSON.stringify([...savedItem, jobPost]));
-      window.alert("Form Submitted Successfully");
-      navigate("/Jobs");
     }
   };
 

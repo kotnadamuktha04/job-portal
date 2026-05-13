@@ -16,7 +16,7 @@ const AuthPage = () => {
     event.preventDefault();
     
     try {
-      const url = isLogin ? 'http://localhost:5001/login' : 'http://localhost:5001/signup';
+      const url = isLogin ? '/api/login' : '/api/signup';
       const response = await axios.post(url, { email, password });
       
       console.log(response.data); // Log the response to check if the token is present
